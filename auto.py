@@ -80,6 +80,19 @@ def remove_aspiration(df):
 
     return df
 
+def check_missing_values(df):
+    missing_values = df.isna().sum()
+
+    print("Missing values in each column:")
+    print(missing_values[missing_values > 0])
+
+    total_missing = missing_values.sum()
+
+    print(f"\nTotal missing values: {total_missing}")
+
+    return total_missing == 0
+
+
 def main():
     df = get_dataset()
 
@@ -94,6 +107,14 @@ def main():
     dh = normalize_height(df)
 
     print(dh["height"].head())
+
+
+    no_missing_values = check_missing_values(df)
+
+    if no_missing_values:
+        print("\nAll missing values have been replaced.")
+    else:
+        print("\nSome missing values remain.")
 
 if __name__ == "__main__":
     main()
