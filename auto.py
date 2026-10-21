@@ -145,6 +145,34 @@ def main():
     print("\nNormalized height range:")
     print(df["height"].min(), "-", df["height"].max())
 
+
+    print("\nAspiration before encoding:")
+    print(df["aspiration"].head(10))
+
+    indicator = create_aspiration_indicator(df)
+
+    print("\nAspiration indicator variables:")
+    print(indicator.head(10))
+
+    # Task 3.2: Merge indicator variables with the dataset
+    df = merge_aspiration_indicator(df, indicator)
+
+    print("\nDataset after merging indicator variables:")
+    print(df.head())
+
+    # Task 3.3: Remove the original aspiration column
+    df = remove_aspiration(df)
+
+    print("\nDataset after removing aspiration:")
+    print(df.head())
+
+    print("\nRemaining aspiration-related columns:")
+    print([
+        column for column in df.columns
+        if "aspiration" in column
+    ])
+
+
     no_missing_values = check_missing_values(df)
 
     if no_missing_values:
