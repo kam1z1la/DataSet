@@ -58,8 +58,14 @@ def replace_stroke_missing_values(df):
     return df
 
 def normalize_height(df):
+    df["height"] = pd.to_numeric(df["height"], errors="coerce")
+
     min_height = df["height"].min()
     max_height = df["height"].max()
+
+    print(f"Height data type: {df['height'].dtype}")
+    print(f"Minimum height: {min_height}")
+    print(f"Maximum height: {max_height}")
 
     df["height"] = (
         (df["height"] - min_height)
@@ -67,7 +73,6 @@ def normalize_height(df):
     )
 
     return df
-
 
 def create_aspiration_indicator(df):
     indicator = pd.get_dummies(
