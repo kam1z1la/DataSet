@@ -95,7 +95,6 @@ def remove_aspiration(df):
 
     return df
 
-
 def replace_all_missing_values(df):
     for column in df.columns:
         if df[column].isna().any():
@@ -117,6 +116,65 @@ def replace_all_missing_values(df):
 
     return df
 
+
+def check_task_1(df):
+    missing = df["stroke"].isna().sum()
+    print(f"Task 1 — missing stroke: {missing}")
+    return missing == 0
+
+
+def check_task_2(df):
+    minimum = df["height"].min()
+    maximum = df["height"].max()
+
+    valid = minimum >= 0 and maximum <= 1
+
+    print(f"Task 2 — height range: {minimum} to {maximum}")
+    print(f"Task 2 — passed: {valid}")
+
+    return valid
+
+
+def check_task_3(df):
+    required_columns = [
+        "aspiration_std",
+        "aspiration_turbo"
+    ]
+
+    columns_exist = all(
+        column in df.columns
+        for column in required_columns
+    )
+
+    original_removed = "aspiration" not in df.columns
+
+    indicators_valid = False
+
+    if columns_exist:
+        indicators_valid = (
+            df["aspiration_std"].astype(int)
+            + df["aspiration_turbo"].astype(int)
+        ).eq(1).all()
+
+    valid = (
+        columns_exist
+        and original_removed
+        and indicators_valid
+    )
+
+    print(f"Task 3 — passed: {valid}")
+    return valid
+
+
+def check_task_4(df):
+    missing = df.isna().sum()
+    total_missing = missing.sum()
+
+    print("Task 4 — missing values by column:")
+    print(missing[missing > 0])
+    print(f"Task 4 — total missing: {total_missing}")
+
+    return total_missing == 0
 
 
 def check_missing_values(df):
@@ -159,6 +217,7 @@ def main():
     print(df["height"].head(10))
 
     df = normalize_height(df)
+    assert check_task_2(df)
 
     print("\nHeight after normalization:")
     print(df["height"].head(10))
@@ -186,6 +245,7 @@ def main():
 
     # Task 3.3: Remove the original aspiration column
     df = remove_aspiration(df)
+    assert check_task_1(df)
 
     print("\nDataset after removing aspiration:")
     print(df.head())
@@ -209,6 +269,7 @@ def main():
     check_missing_values(df)
 
     df = replace_all_missing_values(df)
+    assert check_task_4(df)
 
     print("\nMissing values after replacement:")
     no_missing_values = check_missing_values(df)
@@ -218,6 +279,7 @@ def main():
     else:
         print("\nSome missing values remain.")
 
+        print("\nTask 4: missing-value replacement")
 
 if __name__ == "__main__":
     main()
