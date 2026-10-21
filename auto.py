@@ -95,6 +95,24 @@ def remove_aspiration(df):
 
     return df
 
+def replace_all_missing_values(df):
+    for column in df.columns:
+        if df[column].isna().any():
+            # Convert numeric-looking values to numbers
+            numeric_column = pd.to_numeric(
+                df[column],
+                errors="coerce"
+            )
+
+            # Fill missing values with the column mean
+            if numeric_column.notna().any():
+                df[column] = numeric_column.fillna(
+                    numeric_column.mean()
+                )
+
+    return df
+
+
 def check_missing_values(df):
     missing_values = df.isna().sum()
 
@@ -179,6 +197,21 @@ def main():
         print("\nAll missing values have been replaced.")
     else:
         print("\nSome missing values remain.")
+
+    
+    print("\nMissing values before replacement:")
+    check_missing_values(df)
+
+    df = replace_all_missing_values(df)
+
+    print("\nMissing values after replacement:")
+    no_missing_values = check_missing_values(df)
+
+    if no_missing_values:
+        print("\nAll missing values have been replaced.")
+    else:
+        print("\nSome missing values remain.")
+
 
 if __name__ == "__main__":
     main()
