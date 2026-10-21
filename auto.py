@@ -41,9 +41,19 @@ def get_dataset():
 
     return df
 
-
 def replace_missing_values(df):
     df.replace("?", np.nan, inplace=True)
+
+    return df
+
+def replace_stroke_missing_values(df):
+    df["stroke"] = pd.to_numeric(df["stroke"], errors="coerce")
+
+    mean_stroke = df["stroke"].mean()
+
+    print(f"Mean stroke: {mean_stroke}")
+
+    df["stroke"] = df["stroke"].fillna(mean_stroke)
 
     return df
 
@@ -100,6 +110,18 @@ def main():
     print(df.head())
 
     df = replace_missing_values(df)
+
+
+    print("\nStroke before replacement:")
+    print(df["stroke"].head(10))
+
+    df = replace_stroke_missing_values(df)
+
+    print("\nStroke after replacement:")
+    print(df["stroke"].head(10))
+
+    print("\nMissing values in stroke:")
+    print(df["stroke"].isna().sum())
 
     print("\n New Dataset:")
     print(df.head())
