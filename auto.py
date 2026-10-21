@@ -41,9 +41,21 @@ def get_dataset():
 
     return df
 
+
+def replace_missing_values(df):
+    df.replace("?", np.nan, inplace=True)
+
+    return df
+
 def main():
     df = get_dataset()
 
+    print("Початкові дані:")
+    print(df.head())
+
+    df = replace_missing_values(df)
+
+    print("\nДані після заміни ? на NaN:")
     print(df.head())
 
 
