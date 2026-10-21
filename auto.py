@@ -58,6 +58,28 @@ def normalize_height(df):
 
     return df
 
+
+def create_aspiration_indicator(df):
+    indicator = pd.get_dummies(
+        df["aspiration"],
+        prefix="aspiration"
+    )
+
+    return indicator
+
+def merge_aspiration_indicator(df, indicator):
+    df = pd.concat(
+        [df, indicator],
+        axis=1
+    )
+
+    return df
+
+def remove_aspiration(df):
+    df.drop("aspiration", axis=1, inplace=True)
+
+    return df
+
 def main():
     df = get_dataset()
 
@@ -72,7 +94,6 @@ def main():
     dh = normalize_height(df)
 
     print(dh["height"].head())
-
 
 if __name__ == "__main__":
     main()
