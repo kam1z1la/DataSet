@@ -95,22 +95,28 @@ def remove_aspiration(df):
 
     return df
 
+
 def replace_all_missing_values(df):
     for column in df.columns:
         if df[column].isna().any():
-            # Convert numeric-looking values to numbers
             numeric_column = pd.to_numeric(
                 df[column],
                 errors="coerce"
             )
 
-            # Fill missing values with the column mean
             if numeric_column.notna().any():
-                df[column] = numeric_column.fillna(
-                    numeric_column.mean()
-                )
+                mean_value = numeric_column.mean()
+                df[column] = numeric_column.fillna(mean_value)
+            else:
+                mode_values = df[column].mode(dropna=True)
+
+                if not mode_values.empty:
+                    df[column] = df[column].fillna(
+                        mode_values.iloc[0]
+                    )
 
     return df
+
 
 
 def check_missing_values(df):
