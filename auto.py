@@ -131,10 +131,19 @@ def main():
     print("\n New Dataset:")
     print(df.head())
 
-    dh = normalize_height(df)
+    print("\nHeight before normalization:")
+    print(df["height"].head(10))
 
-    print(dh["height"].head())
+    df = normalize_height(df)
 
+    print("\nHeight after normalization:")
+    print(df["height"].head(10))
+
+    print("\nNormalized height data type:")
+    print(df["height"].dtype)
+
+    print("\nNormalized height range:")
+    print(df["height"].min(), "-", df["height"].max())
 
     no_missing_values = check_missing_values(df)
 
