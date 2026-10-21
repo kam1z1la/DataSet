@@ -47,16 +47,31 @@ def replace_missing_values(df):
 
     return df
 
+def normalize_height(df):
+    min_height = df["height"].min()
+    max_height = df["height"].max()
+
+    df["height"] = (
+        (df["height"] - min_height)
+        / (max_height - min_height)
+    )
+
+    return df
+
 def main():
     df = get_dataset()
 
-    print("Початкові дані:")
+    print("Old dataset:")
     print(df.head())
 
     df = replace_missing_values(df)
 
-    print("\nДані після заміни ? на NaN:")
+    print("\n New Dataset:")
     print(df.head())
+
+    dh = normalize_height(df)
+
+    print(dh["height"].head())
 
 
 if __name__ == "__main__":
