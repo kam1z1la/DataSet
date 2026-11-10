@@ -204,6 +204,26 @@ def get_dataset_for_analysis():
     df = df.dropna(subset=["price"])
     return df
 
+def get_dataset_for_regression():
+    df = get_dataset()
+    df = replace_missing_values(df)
+
+    numeric_columns = [
+        "normalized-losses", "bore", "stroke", "compression-ratio",
+        "horsepower", "peak-rpm", "wheel-base", "length", "width",
+        "height", "curb-weight", "engine-size", "city-mpg",
+        "highway-mpg", "price"
+    ]
+    for col in numeric_columns:
+        df[col] = pd.to_numeric(df[col], errors="coerce")
+
+
+    df = df.dropna(subset=["price"])
+
+    for col in ["horsepower", "peak-rpm", "bore", "stroke"]:
+        df[col] = df[col].fillna(df[col].mean())
+
+    return df.reset_index(drop=True)
 
 def main():
     df = get_dataset()
