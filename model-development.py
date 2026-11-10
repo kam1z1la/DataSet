@@ -131,3 +131,16 @@ Yhat = lm.predict(X)
 print("Intercept:", lm.intercept_)
 print("Coefficient:", lm.coef_[0])
 print("First 5 predictions:", Yhat[:5])
+
+X = df[["highway-mpg"]]
+Y = df["price"]
+
+lm = LinearRegression()
+lm.fit(X, Y)
+
+Yhat = lm.predict(X)
+
+print("Intercept:", lm.intercept_)
+print("Coefficient:", lm.coef_[0])
+print(f"price = {lm.intercept_:.2f} + {lm.coef_[0]:.2f} * highway-mpg")
+print("First 5 predictions:", Yhat[:5])
