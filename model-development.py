@@ -39,3 +39,22 @@ mse = mean_squared_error(Y, Yhat)
 print("R^2:", r2)
 print("R^2 (lm.score):", lm.score(X, Y))
 print("MSE:", mse)
+
+features = ["horsepower", "curb-weight", "engine-size", "highway-mpg"]
+Z = df[features]
+
+lm_multi = LinearRegression()
+lm_multi.fit(Z, Y)
+
+Y_hat_multi = lm_multi.predict(Z)
+
+print("MLR intercept:", lm_multi.intercept_)
+print("MLR coefficients:", dict(zip(features, lm_multi.coef_)))
+print("MLR R^2:", r2_score(Y, Y_hat_multi))
+print("MLR MSE:", mean_squared_error(Y, Y_hat_multi))
+
+plt.figure(figsize=(12, 10))
+ax1 = sns.kdeplot(Y, color="r", label="Actual")
+sns.kdeplot(Y_hat_multi, color="b", label="Fitted", ax=ax1)
+plt.legend()
+plt.show()
