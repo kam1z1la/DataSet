@@ -110,3 +110,12 @@ plot_residuals("highway-mpg")
 print("R^2:", r2_score(Y, Yhat))
 print("MSE:", mean_squared_error(Y, Yhat))
 print("R^2 via score:", lm.score(X, Y))
+
+X = df[["highway-mpg"]]
+Y = df["price"]
+
+lm = LinearRegression()
+lm.fit(X, Y)
+
+print("Intercept:", lm.intercept_)
+print("Coefficient:", lm.coef_[0])
