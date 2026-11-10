@@ -21,3 +21,8 @@ pair_wheel_base = df[["wheel-base", "price"]].dropna()
 pearson_coef, p_value = stats.pearsonr(pair_wheel_base["wheel-base"], pair_wheel_base["price"])
 print("Pearson correlation coefficient:", pearson_coef)
 print("P-value:", p_value)
+
+pair_horsepower = df[["horsepower", "price"]].dropna()
+pearson_coef, p_value = stats.pearsonr(pair_horsepower["horsepower"], pair_horsepower["price"])
+print("Pearson correlation coefficient:", pearson_coef)
+print("P-value:", p_value)
