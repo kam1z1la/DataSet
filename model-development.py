@@ -154,3 +154,16 @@ test_results = pd.DataFrame({
 })
 
 print(test_results.to_string(index=False))
+
+best_test_model = test_results.loc[test_results["Test R^2"].idxmax(), "Model"]
+best_test_r2 = test_results["Test R^2"].max()
+best_test_mse = test_results.loc[test_results["Test R^2"].idxmax(), "Test MSE"]
+
+print("Best model on test set:", best_test_model)
+print("Test R^2:", best_test_r2)
+print("Test MSE:", best_test_mse)
+
+for _, row in test_results.iterrows():
+    gap = row["Train R^2"] - row["Test R^2"]
+    status = "possible overfitting" if gap > 0.1 else "generalizes well"
+    print(row["Model"], "-> train/test R^2 gap:", round(gap, 4), "->", status)
