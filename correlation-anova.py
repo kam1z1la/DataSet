@@ -26,3 +26,19 @@ pair_horsepower = df[["horsepower", "price"]].dropna()
 pearson_coef, p_value = stats.pearsonr(pair_horsepower["horsepower"], pair_horsepower["price"])
 print("Pearson correlation coefficient:", pearson_coef)
 print("P-value:", p_value)
+
+def run_anova(data_frame, group_col, value_col="price"):
+    data = data_frame[[group_col, value_col]].dropna()
+    groups = [g[value_col].values for _, g in data.groupby(group_col) if len(g) > 1]
+    f_score, p_val = stats.f_oneway(*groups)
+    print(group_col, "-> F-test score:", f_score, "P-value:", p_val)
+
+
+run_anova(df, "body-style")
+run_anova(df, "drive-wheels")
+
+drive_price = df[["drive-wheels", "price"]].dropna()
+fwd_price = drive_price[drive_price["drive-wheels"] == "fwd"]["price"]
+rwd_price = drive_price[drive_price["drive-wheels"] == "rwd"]["price"]
+f_score, p_val = stats.f_oneway(fwd_price, rwd_price)
+print("fwd vs rwd -> F-test score:", f_score, "P-value:", p_val)
