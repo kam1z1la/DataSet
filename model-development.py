@@ -58,3 +58,23 @@ ax1 = sns.kdeplot(Y, color="r", label="Actual")
 sns.kdeplot(Y_hat_multi, color="b", label="Fitted", ax=ax1)
 plt.legend()
 plt.show()
+
+x = df["highway-mpg"]
+y = df["price"]
+
+f = np.polyfit(x, y, 3)
+p = np.poly1d(f)
+
+print("Polynomial (deg=3):")
+print(p)
+
+x_new = np.linspace(x.min(), x.max(), 100)
+
+plt.figure(figsize=(12, 10))
+plt.plot(x, y, ".", x_new, p(x_new), "-")
+plt.xlabel("highway-mpg")
+plt.ylabel("price")
+plt.show()
+
+print("Polynomial R^2:", r2_score(y, p(x)))
+print("Polynomial MSE:", mean_squared_error(y, p(x)))
