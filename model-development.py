@@ -117,3 +117,40 @@ print(results.to_string(index=False))
 
 best_model = results.loc[results["R^2"].idxmax(), "Model"]
 print("Best model by R^2:", best_model)
+
+from sklearn.model_selection import train_test_split
+
+x_train, x_test, y_train, y_test = train_test_split(
+    Z, Y, test_size=0.2, random_state=1
+)
+
+print("Train samples:", x_train.shape[0])
+print("Test samples:", x_test.shape[0])
+
+lm_test = LinearRegression()
+lm_test.fit(x_train, y_train)
+
+pipe_test = Pipeline([
+    ("scale", StandardScaler()),
+    ("polynomial", PolynomialFeatures(degree=2, include_bias=False)),
+    ("model", LinearRegression()),
+])
+pipe_test.fit(x_train, y_train)
+
+test_results = pd.DataFrame({
+    "Model": ["MLR", "Pipeline"],
+    "Train R^2": [
+        r2_score(y_train, lm_test.predict(x_train)),
+        r2_score(y_train, pipe_test.predict(x_train)),
+    ],
+    "Test R^2": [
+        r2_score(y_test, lm_test.predict(x_test)),
+        r2_score(y_test, pipe_test.predict(x_test)),
+    ],
+    "Test MSE": [
+        mean_squared_error(y_test, lm_test.predict(x_test)),
+        mean_squared_error(y_test, pipe_test.predict(x_test)),
+    ],
+})
+
+print(test_results.to_string(index=False))
