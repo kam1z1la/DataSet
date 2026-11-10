@@ -78,3 +78,21 @@ plt.show()
 
 print("Polynomial R^2:", r2_score(y, p(x)))
 print("Polynomial MSE:", mean_squared_error(y, p(x)))
+
+pr = PolynomialFeatures(degree=2, include_bias=False)
+Z_pr = pr.fit_transform(Z)
+
+print("Shape before:", Z.shape)
+print("Shape after:", Z_pr.shape)
+
+pipe = Pipeline([
+    ("scale", StandardScaler()),
+    ("polynomial", PolynomialFeatures(degree=2, include_bias=False)),
+    ("model", LinearRegression()),
+])
+
+pipe.fit(Z, Y)
+Y_hat_pipe = pipe.predict(Z)
+
+print("Pipeline R^2:", r2_score(Y, Y_hat_pipe))
+print("Pipeline MSE:", mean_squared_error(Y, Y_hat_pipe))
