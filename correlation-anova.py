@@ -14,3 +14,6 @@ print(df[["stroke", "price"]].corr())
 sns.regplot(x="stroke", y="price", data=df)
 plt.ylim(0,)
 plt.show()
+
+df_body_style = df[["body-style", "price"]].groupby("body-style", as_index=False).mean()
+print(df_body_style)
