@@ -190,6 +190,21 @@ def check_missing_values(df):
     return total_missing == 0
 
 
+def get_dataset_for_analysis():
+    df = get_dataset()
+    df = replace_missing_values(df)
+
+    numeric_columns = [
+        "bore", "stroke", "compression-ratio", "horsepower",
+        "wheel-base", "price"
+    ]
+    for col in numeric_columns:
+        df[col] = pd.to_numeric(df[col], errors="coerce")
+
+    df = df.dropna(subset=["price"])
+    return df
+
+
 def main():
     df = get_dataset()
 
