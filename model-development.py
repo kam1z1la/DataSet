@@ -96,3 +96,24 @@ Y_hat_pipe = pipe.predict(Z)
 
 print("Pipeline R^2:", r2_score(Y, Y_hat_pipe))
 print("Pipeline MSE:", mean_squared_error(Y, Y_hat_pipe))
+
+results = pd.DataFrame({
+    "Model": ["SLR", "MLR", "Polynomial (deg=3)", "Pipeline"],
+    "R^2": [
+        r2_score(Y, Yhat),
+        r2_score(Y, Y_hat_multi),
+        r2_score(y, p(x)),
+        r2_score(Y, Y_hat_pipe),
+    ],
+    "MSE": [
+        mean_squared_error(Y, Yhat),
+        mean_squared_error(Y, Y_hat_multi),
+        mean_squared_error(y, p(x)),
+        mean_squared_error(Y, Y_hat_pipe),
+    ],
+})
+
+print(results.to_string(index=False))
+
+best_model = results.loc[results["R^2"].idxmax(), "Model"]
+print("Best model by R^2:", best_model)
