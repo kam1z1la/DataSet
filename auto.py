@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+from sklearn.model_selection import train_test_split
 
 DATASET_URL = "https://archive.ics.uci.edu/ml/machine-learning-databases/autos/imports-85.data"
 
@@ -224,6 +225,46 @@ def get_dataset_for_regression():
         df[col] = df[col].fillna(df[col].mean())
 
     return df.reset_index(drop=True)
+
+
+def get_dataset_for_model_evaluation():
+    df = get_dataset()
+    df = replace_missing_values(df)
+
+    numeric_columns = [
+        "symboling", "normalized-losses", "wheel-base", "length",
+        "width", "height", "curb-weight", "engine-size", "bore",
+        "stroke", "compression-ratio", "horsepower", "peak-rpm",
+        "city-mpg", "highway-mpg", "price"
+    ]
+    for col in numeric_columns:
+        df[col] = pd.to_numeric(df[col], errors="coerce")
+
+    df = df.dropna(subset=["price"])
+
+    for col in numeric_columns:
+        if df[col].isna().any():
+            df[col] = df[col].fillna(df[col].mean())
+
+    df = df[numeric_columns]
+
+    return df.reset_index(drop=True)
+
+
+def get_data_for_model_evaluation(test_size=0.4, random_state=0):
+    df = get_dataset_for_model_evaluation()
+
+    y_data = df["price"]
+    x_data = df.drop("price", axis=1)
+
+    x_train, x_test, y_train, y_test = train_test_split(
+        x_data,
+        y_data,
+        test_size=test_size,
+        random_state=random_state
+    )
+
+    return x_data, y_data, x_train, x_test, y_train, y_test
 
 def main():
     df = get_dataset()
