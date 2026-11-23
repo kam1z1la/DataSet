@@ -5,6 +5,7 @@ from sklearn.model_selection import cross_val_score, cross_val_predict
 from sklearn.preprocessing import PolynomialFeatures
 from sklearn.linear_model import LinearRegression, Ridge
 from auto import get_data_for_model_evaluation
+from sklearn.model_selection import cross_val_score, cross_val_predict, GridSearchCV
 
 from auto import get_data_for_model_evaluation
 
@@ -162,6 +163,32 @@ def plot_ridge_alpha_search(alphas, r2_train, r2_test):
     plt.grid(True)
     plt.show()
 
+def run_grid_search(x_train_pr, x_test_pr, y_train, y_test, cv=4):
+    parameters1 = [{"alpha": [0.001, 0.1, 1, 10, 100, 1000, 10000, 100000]}]
+
+    RR = Ridge()
+    Grid1 = GridSearchCV(RR, parameters1, cv=cv)
+    Grid1.fit(x_train_pr, y_train)
+
+    best_model = Grid1.best_estimator_
+
+    print(f"Кращі параметри: {Grid1.best_params_}")
+    print(f"Найкращий середній R² на крос-валідації: {Grid1.best_score_:.4f}")
+    print(f"R² кращої моделі на train: {best_model.score(x_train_pr, y_train):.4f}")
+    print(f"R² кращої моделі на test: {best_model.score(x_test_pr, y_test):.4f}")
+
+    return Grid1, best_model
+
+
+def print_grid_search_results(Grid1):
+    scores = Grid1.cv_results_
+    for params, mean_score, std_score in zip(
+        scores["params"],
+        scores["mean_test_score"],
+        scores["std_test_score"]
+    ):
+        print(f"{params}: середнє R² = {mean_score:.4f}, std = {std_score:.4f}")
+
 if __name__ == "__main__":
     run_cross_validation(x_data, y_data)
     run_cross_validation_mse(x_data, y_data)
@@ -179,3 +206,6 @@ if __name__ == "__main__":
         x_train_pr, x_test_pr, y_train, y_test
     )
     plot_ridge_alpha_search(alphas, ridge_r2_train, ridge_r2_test)
+
+    Grid1, best_model = run_grid_search(x_train_pr, x_test_pr, y_train, y_test)
+    print_grid_search_results(Grid1)
