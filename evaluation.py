@@ -1,6 +1,10 @@
 import numpy as np
+import matplotlib.pyplot as plt
 from sklearn.linear_model import LinearRegression
 from sklearn.model_selection import cross_val_score, cross_val_predict
+from sklearn.preprocessing import PolynomialFeatures
+
+from auto import get_data_for_model_evaluation
 
 from auto import get_data_for_model_evaluation
 
