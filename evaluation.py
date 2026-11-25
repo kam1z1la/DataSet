@@ -1,13 +1,18 @@
+
 import numpy as np
 import matplotlib.pyplot as plt
-from sklearn.linear_model import LinearRegression
-from sklearn.model_selection import cross_val_score, cross_val_predict
-from sklearn.preprocessing import PolynomialFeatures
+
 from sklearn.linear_model import LinearRegression, Ridge
-from auto import get_data_for_model_evaluation
-from sklearn.model_selection import cross_val_score, cross_val_predict, GridSearchCV
+from sklearn.tree import DecisionTreeRegressor
+from sklearn.model_selection import (
+    cross_val_score,
+    cross_val_predict,
+    GridSearchCV
+)
+from sklearn.preprocessing import PolynomialFeatures
 
 from auto import get_data_for_model_evaluation
+
 
 x_data, y_data, x_train, x_test, y_train, y_test = get_data_for_model_evaluation()
 
@@ -20,10 +25,16 @@ RIDGE_FEATURES = [
     "symboling"
 ]
 
+
 def run_cross_validation(x_data, y_data, cv=4):
     lre = LinearRegression()
 
-    Rcross = cross_val_score(lre, x_data[["horsepower"]], y_data, cv=cv)
+    Rcross = cross_val_score(
+        lre,
+        x_data[["horsepower"]],
+        y_data,
+        cv=cv
+    )
 
     print(f"R² по фолдах: {Rcross}")
     print(f"Середнє R²: {Rcross.mean():.4f}")
@@ -42,6 +53,7 @@ def run_cross_validation_mse(x_data, y_data, cv=4):
         cv=cv,
         scoring="neg_mean_squared_error"
     )
+
     mse = -scores
 
     print(f"MSE по фолдах: {mse}")
@@ -53,14 +65,151 @@ def run_cross_validation_mse(x_data, y_data, cv=4):
 def run_cross_val_predict(x_data, y_data, cv=4):
     lre = LinearRegression()
 
-    yhat = cross_val_predict(lre, x_data[["horsepower"]], y_data, cv=cv)
+    yhat = cross_val_predict(
+        lre,
+        x_data[["horsepower"]],
+        y_data,
+        cv=cv
+    )
 
     print(f"Перші 5 передбачень: {yhat[:5]}")
 
     return yhat
 
 
-def run_polynomial_degrees(x_train, x_test, y_train, y_test, max_degree=5):
+def run_overfitting(x_train, x_test, y_train, y_test):
+    model = DecisionTreeRegressor(
+        max_depth=None,
+        min_samples_split=2,
+        min_samples_leaf=1,
+        random_state=42
+    )
+
+    model.fit(x_train[RIDGE_FEATURES], y_train)
+
+    y_train_pred = model.predict(x_train[RIDGE_FEATURES])
+    y_test_pred = model.predict(x_test[RIDGE_FEATURES])
+
+    r2_train = model.score(x_train[RIDGE_FEATURES], y_train)
+    r2_test = model.score(x_test[RIDGE_FEATURES], y_test)
+
+    print("OVERFITTING")
+    print(f"R² train = {r2_train:.4f}")
+    print(f"R² test = {r2_test:.4f}")
+
+    return model, y_train_pred, y_test_pred
+
+
+def plot_overfitting(y_train, y_train_pred, y_test, y_test_pred):
+    fig, axes = plt.subplots(1, 2, figsize=(12, 5))
+
+    axes[0].scatter(
+        y_train,
+        y_train_pred,
+        alpha=0.7
+    )
+
+    axes[0].plot(
+        [min(y_train), max(y_train)],
+        [min(y_train), max(y_train)],
+        "r--"
+    )
+
+    axes[0].set_title("Overfitting: Train")
+    axes[0].set_xlabel("Actual values")
+    axes[0].set_ylabel("Predicted values")
+    axes[0].grid(True)
+
+    axes[1].scatter(
+        y_test,
+        y_test_pred,
+        alpha=0.7
+    )
+
+    axes[1].plot(
+        [min(y_test), max(y_test)],
+        [min(y_test), max(y_test)],
+        "r--"
+    )
+
+    axes[1].set_title("Overfitting: Test")
+    axes[1].set_xlabel("Actual values")
+    axes[1].set_ylabel("Predicted values")
+    axes[1].grid(True)
+
+    plt.tight_layout()
+    plt.show()
+
+
+def run_underfitting(x_train, x_test, y_train, y_test):
+    model = DecisionTreeRegressor(
+        max_depth=1,
+        random_state=42
+    )
+
+    model.fit(x_train[RIDGE_FEATURES], y_train)
+
+    y_train_pred = model.predict(x_train[RIDGE_FEATURES])
+    y_test_pred = model.predict(x_test[RIDGE_FEATURES])
+
+    r2_train = model.score(x_train[RIDGE_FEATURES], y_train)
+    r2_test = model.score(x_test[RIDGE_FEATURES], y_test)
+
+    print("UNDERFITTING")
+    print(f"R² train = {r2_train:.4f}")
+    print(f"R² test = {r2_test:.4f}")
+
+    return model, y_train_pred, y_test_pred
+
+
+def plot_underfitting(y_train, y_train_pred, y_test, y_test_pred):
+    fig, axes = plt.subplots(1, 2, figsize=(12, 5))
+
+    axes[0].scatter(
+        y_train,
+        y_train_pred,
+        alpha=0.7
+    )
+
+    axes[0].plot(
+        [min(y_train), max(y_train)],
+        [min(y_train), max(y_train)],
+        "r--"
+    )
+
+    axes[0].set_title("Underfitting: Train")
+    axes[0].set_xlabel("Actual values")
+    axes[0].set_ylabel("Predicted values")
+    axes[0].grid(True)
+
+    axes[1].scatter(
+        y_test,
+        y_test_pred,
+        alpha=0.7
+    )
+
+    axes[1].plot(
+        [min(y_test), max(y_test)],
+        [min(y_test), max(y_test)],
+        "r--"
+    )
+
+    axes[1].set_title("Underfitting: Test")
+    axes[1].set_xlabel("Actual values")
+    axes[1].set_ylabel("Predicted values")
+    axes[1].grid(True)
+
+    plt.tight_layout()
+    plt.show()
+
+
+def run_polynomial_degrees(
+    x_train,
+    x_test,
+    y_train,
+    y_test,
+    max_degree=5
+):
     degrees = list(range(1, max_degree + 1))
     r2_train = []
     r2_test = []
@@ -68,8 +217,13 @@ def run_polynomial_degrees(x_train, x_test, y_train, y_test, max_degree=5):
     for degree in degrees:
         pr = PolynomialFeatures(degree=degree)
 
-        x_train_pr = pr.fit_transform(x_train[["horsepower"]])
-        x_test_pr = pr.transform(x_test[["horsepower"]])
+        x_train_pr = pr.fit_transform(
+            x_train[["horsepower"]]
+        )
+
+        x_test_pr = pr.transform(
+            x_test[["horsepower"]]
+        )
 
         lr = LinearRegression()
         lr.fit(x_train_pr, y_train)
@@ -84,6 +238,7 @@ def run_polynomial_degrees(x_train, x_test, y_train, y_test, max_degree=5):
         )
 
     best_degree = degrees[int(np.argmax(r2_test))]
+
     print(f"Оптимальний степінь за R² на test: {best_degree}")
 
     return degrees, r2_train, r2_test, best_degree
@@ -91,11 +246,13 @@ def run_polynomial_degrees(x_train, x_test, y_train, y_test, max_degree=5):
 
 def plot_polynomial_degrees(degrees, r2_train, r2_test):
     plt.figure(figsize=(8, 5))
+
     plt.plot(degrees, r2_train, marker="o", label="Train R²")
     plt.plot(degrees, r2_test, marker="o", label="Test R²")
+
     plt.xlabel("Степінь полінома")
     plt.ylabel("R²")
-    plt.title("Перенавчання: R² залежно від степеня полінома")
+    plt.title("R² залежно від степеня полінома")
     plt.xticks(degrees)
     plt.legend()
     plt.grid(True)
@@ -115,17 +272,28 @@ def prepare_ridge_features(x_train, x_test, degree=2):
 
 def run_ridge(x_train_pr, x_test_pr, y_train, y_test, alpha=1):
     ridge_model = Ridge(alpha=alpha)
+
     ridge_model.fit(x_train_pr, y_train)
 
     r2_train = ridge_model.score(x_train_pr, y_train)
     r2_test = ridge_model.score(x_test_pr, y_test)
 
-    print(f"Ridge (alpha={alpha}): R² train = {r2_train:.4f}, R² test = {r2_test:.4f}")
+    print(
+        f"Ridge (alpha={alpha}): "
+        f"R² train = {r2_train:.4f}, "
+        f"R² test = {r2_test:.4f}"
+    )
 
     return ridge_model
 
 
-def run_ridge_alpha_search(x_train_pr, x_test_pr, y_train, y_test, alphas=None):
+def run_ridge_alpha_search(
+    x_train_pr,
+    x_test_pr,
+    y_train,
+    y_test,
+    alphas=None
+):
     if alphas is None:
         alphas = [0.001, 0.01, 0.1, 1, 10, 100, 1000, 10000]
 
@@ -134,6 +302,7 @@ def run_ridge_alpha_search(x_train_pr, x_test_pr, y_train, y_test, alphas=None):
 
     for alpha in alphas:
         ridge_model = Ridge(alpha=alpha)
+
         ridge_model.fit(x_train_pr, y_train)
 
         r2_train.append(ridge_model.score(x_train_pr, y_train))
@@ -146,6 +315,7 @@ def run_ridge_alpha_search(x_train_pr, x_test_pr, y_train, y_test, alphas=None):
         )
 
     best_alpha = alphas[int(np.argmax(r2_test))]
+
     print(f"Найкращий alpha за R² на test: {best_alpha}")
 
     return alphas, r2_train, r2_test, best_alpha
@@ -153,8 +323,10 @@ def run_ridge_alpha_search(x_train_pr, x_test_pr, y_train, y_test, alphas=None):
 
 def plot_ridge_alpha_search(alphas, r2_train, r2_test):
     plt.figure(figsize=(8, 5))
+
     plt.plot(alphas, r2_train, marker="o", label="Train R²")
     plt.plot(alphas, r2_test, marker="o", label="Test R²")
+
     plt.xscale("log")
     plt.xlabel("alpha")
     plt.ylabel("R²")
@@ -163,11 +335,21 @@ def plot_ridge_alpha_search(alphas, r2_train, r2_test):
     plt.grid(True)
     plt.show()
 
+
 def run_grid_search(x_train_pr, x_test_pr, y_train, y_test, cv=4):
-    parameters1 = [{"alpha": [0.001, 0.1, 1, 10, 100, 1000, 10000, 100000]}]
+    parameters1 = {
+        "alpha": [0.001, 0.1, 1, 10, 100, 1000, 10000, 100000]
+    }
 
     RR = Ridge()
-    Grid1 = GridSearchCV(RR, parameters1, cv=cv)
+
+    Grid1 = GridSearchCV(
+        RR,
+        parameters1,
+        cv=cv,
+        scoring="r2"
+    )
+
     Grid1.fit(x_train_pr, y_train)
 
     best_model = Grid1.best_estimator_
@@ -182,30 +364,92 @@ def run_grid_search(x_train_pr, x_test_pr, y_train, y_test, cv=4):
 
 def print_grid_search_results(Grid1):
     scores = Grid1.cv_results_
+
     for params, mean_score, std_score in zip(
         scores["params"],
         scores["mean_test_score"],
         scores["std_test_score"]
     ):
-        print(f"{params}: середнє R² = {mean_score:.4f}, std = {std_score:.4f}")
+        print(
+            f"{params}: "
+            f"середнє R² = {mean_score:.4f}, "
+            f"std = {std_score:.4f}"
+        )
+
 
 if __name__ == "__main__":
     run_cross_validation(x_data, y_data)
     run_cross_validation_mse(x_data, y_data)
     run_cross_val_predict(x_data, y_data)
 
-    degrees, r2_train, r2_test, best_degree = run_polynomial_degrees(
-        x_train, x_test, y_train, y_test
+    overfit_model, overfit_train_pred, overfit_test_pred = run_overfitting(
+        x_train,
+        x_test,
+        y_train,
+        y_test
     )
+
+    plot_overfitting(
+        y_train,
+        overfit_train_pred,
+        y_test,
+        overfit_test_pred
+    )
+
+    underfit_model, underfit_train_pred, underfit_test_pred = run_underfitting(
+        x_train,
+        x_test,
+        y_train,
+        y_test
+    )
+
+    plot_underfitting(
+        y_train,
+        underfit_train_pred,
+        y_test,
+        underfit_test_pred
+    )
+
+    degrees, r2_train, r2_test, best_degree = run_polynomial_degrees(
+        x_train,
+        x_test,
+        y_train,
+        y_test
+    )
+
     plot_polynomial_degrees(degrees, r2_train, r2_test)
 
-    x_train_pr, x_test_pr = prepare_ridge_features(x_train, x_test)
-    run_ridge(x_train_pr, x_test_pr, y_train, y_test, alpha=1)
+    x_train_pr, x_test_pr = prepare_ridge_features(
+        x_train,
+        x_test
+    )
+
+    run_ridge(
+        x_train_pr,
+        x_test_pr,
+        y_train,
+        y_test,
+        alpha=1
+    )
 
     alphas, ridge_r2_train, ridge_r2_test, best_alpha = run_ridge_alpha_search(
-        x_train_pr, x_test_pr, y_train, y_test
+        x_train_pr,
+        x_test_pr,
+        y_train,
+        y_test
     )
-    plot_ridge_alpha_search(alphas, ridge_r2_train, ridge_r2_test)
 
-    Grid1, best_model = run_grid_search(x_train_pr, x_test_pr, y_train, y_test)
+    plot_ridge_alpha_search(
+        alphas,
+        ridge_r2_train,
+        ridge_r2_test
+    )
+
+    Grid1, best_model = run_grid_search(
+        x_train_pr,
+        x_test_pr,
+        y_train,
+        y_test
+    )
+
     print_grid_search_results(Grid1)
